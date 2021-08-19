@@ -23,7 +23,7 @@ dict_mapper = [
             ('travel_allowance_total', 'Dienas naudas kopa:'),
 ]
 
-class Reports:
+class Report:
     """Class represent list of bulk of routes"""
     
     def __init__(self,):
@@ -60,9 +60,36 @@ class Reports:
             self.route_list.append(Route(**route_dict))
         print("Imported!")
             
-    def get_driver_month_report(self, driver=None, year='2021', month='08'):
+    def get_driver_month_report_routes(self, driver=None, year='2021', month='08'):
         """Return Route object list filtered by params"""
-        return list(filter(lambda unit: unit.driver == driver, self.route_list))
+        data  = list(filter(lambda unit: unit.driver == driver, self.route_list))
+        sorted_data = sorted(data, key= lambda route: route.route_id, reverse=True)
+        return sorted_data
+
+    def get_summary(self, route_obj_list= None):
+        data= []
+        for route_obj in route_obj_list:
+             data.append({
+                 "Reiss ID": route_obj.route_id,
+                 "Reisa kārtas nr": route_obj.driver_route_id,
+                 "Autovadītājs": route_obj.driver,
+                 "Maršruts": route_obj.short_desc,
+                 "Reisa sākuma datums": route_obj.start_date,
+                 "Reisa beigu datums": route_obj.end_date,
+                 "Nobraukti km": route_obj.km,
+                #  "Degviela iztērēta": route_obj.fuel_spent,
+                 "Ienākumi": route_obj.revenue,
+                 "Prāmja izmaksas": route_obj.expenses,
+                 "Rentabilitāte": route_obj.profitability,
+             })
+        return data
+
+
+    def get_all_drivers(self):
+        return list(set(route.driver for route in self.route_list ))
+
+
+# Tika veidots lai request ir no route objekta kas būtu loģiski bet par cik pieprasījumam nepieciešams web drivers, tas tiek pārnests uz report sadaļu, kur visam reportam ir viens
     
     def update_route_route_car_list(self, route_id_list=None):
         """Updates routes which are passed in with api request to pro.kurbads.lv"""
@@ -71,9 +98,12 @@ class Reports:
         else:
             route_obj_list = list(filter(lambda unit: unit.route_id in route_id_list, self.route_list)) 
         for route_obj in route_obj_list:
-            _ = self.api_driver.get_pro_route(route_obj.route_id)
-            route_obj._pro_id = _[0]['_links']['self']['href'].split('/')[-1]
-            route_obj.pro_route_cars = self.api_driver.get_pro_route_statistic(pro_route_id=route_obj._pro_id)
+            try:
+                _ = self.api_driver.get_pro_route(route_obj.route_id)
+                route_obj._pro_id = _[0]['_links']['self']['href'].split('/')[-1]
+                route_obj.pro_route_cars = self.api_driver.get_pro_route_statistic(pro_route_id=route_obj._pro_id)
+            except:
+                pass
             
         
 if __name__ == "__main__":
