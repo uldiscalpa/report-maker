@@ -20,6 +20,7 @@ dict_mapper = [
             ('fuel_refilling_end', 'Degviela reisa laika uzpildita Baze Kopa'),
             ('fuel_level_end', 'Degviela baka beidzot reisu'),
             ('driver_wage', 'Atalgojums kopa'),
+            ('other_expenses', 'Izdevumi kopa'),
             ('travel_allowance_total', 'Dienas naudas kopa:'),
 ]
 
@@ -74,13 +75,17 @@ class Report:
                  "Reisa kārtas nr": route_obj.driver_route_id,
                  "Autovadītājs": route_obj.driver,
                  "Maršruts": route_obj.short_desc,
-                 "Reisa sākuma datums": route_obj.start_date,
-                 "Reisa beigu datums": route_obj.end_date,
+                 "Reisa sākuma d.": route_obj.start_date,
+                 "Reisa beigu d.": route_obj.end_date,
                  "Nobraukti km": route_obj.km,
-                #  "Degviela iztērēta": route_obj.fuel_spent,
                  "Ienākumi": route_obj.revenue,
+                 "Degviela iztērēta": route_obj.fuel_spent,
+                 "Amorti. izm.": route_obj.amortization,
+                 "Bruto alga": route_obj.driver_expenses,
+                 "Pārējie izdevumi": route_obj.other_expenses,
                  "Prāmja izmaksas": route_obj.expenses,
                  "Rentabilitāte": route_obj.profitability,
+                 "Peļņa": route_obj.profit_raw,
              })
         return data
 

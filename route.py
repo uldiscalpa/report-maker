@@ -33,6 +33,9 @@ class MaponRoute:
 
 
 class Route:
+
+    amortization_rate = 0.064
+    salary_bruto_koef = 1.77
     
     def __init__(
         self,
@@ -51,8 +54,10 @@ class Route:
         fuel_refilling_end= None,
         fuel_level_end= None,
         driver_wage= None,
+        other_expenses= None,
         travel_allowance_total= None,
         pro_route_cars= None,
+
         *args,
         **kwargs,
     ):
@@ -71,6 +76,7 @@ class Route:
         self.fuel_refilling_end= fuel_refilling_end if fuel_refilling_end != None else 0
         self.fuel_level_end= fuel_level_end if fuel_refilling_end != None else 0
         self.driver_wage= driver_wage
+        self.other_expenses= other_expenses if fuel_refilling_end != None else 0
         self.travel_allowance_total= travel_allowance_total
         
         self.pro_route_cars= pro_route_cars
@@ -101,8 +107,21 @@ class Route:
         return self.fuel_level_start + self.fuel_refilling_on_the_way + self.fuel_refilling_on_the_way - self.fuel_level_end
 
     @property
-    def country_codes(self):
-        pass
+    def amortization(self):
+        return self.km * self.amortization_rate
+
+    @property
+    def salary_bruto(self):
+        return self.driver_wage * self.salary_bruto_koef
+
+    @property
+    def driver_expenses(self):
+        return self.salary_bruto + self.travel_allowance_total
+
+    @property
+    def profit_raw(self):
+        return self.revenue - self.fuel_spent - self.driver_expenses - self.other_expenses - self.expenses - self.amortization
+
 
     def route_cars_export_format(self):
         data = []
@@ -127,9 +146,7 @@ class Route:
 
     def get_route_load_plot(self):
         fig, gnt = plt.subplots()
-
-
-
+        
         i = 1
         start_point_date = self._date_parser(self.pro_route_cars[0]['pickupLocation_date'])
         for car in sorted(self.pro_route_cars, key=lambda key: key["pickupLocation_sequence"], reverse=True):
@@ -152,21 +169,10 @@ class Route:
         gnt.set_ylabel('')
         gnt.set_yticks([])
         gnt.set_yticklabels([])
-        # gnt.set_xticks([])
         gnt.set_xticklabels([])
         print(self.route_id)
         plt.show()
 
-
-        # gnt.broken_barh([(110, 10), (150, 10)], (10, 9), facecolors ='tab:blue')
-        # gnt.broken_barh([(10, 50), (100, 20), (130, 10)], (20, 9), facecolors =('tab:red'))
-        # plt.savefig("gantt1.png")
-        # gnt.set_ylim(0, 50)
-        # gnt.set_xlim(0, 160)
-        # gnt.set_xlabel('seconds since start')
-        # gnt.set_ylabel('Processor')
-        # gnt.set_yticks([15, 25, 35])
-        # gnt.set_yticklabels(['1', '2', '3'])
 
     def _date_parser(self, date_string):
         return datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%f" )

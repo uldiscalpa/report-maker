@@ -9,25 +9,37 @@ def _as_text(value):
 class ExcelCreator:
     """excel report creator class"""
 
-    format_as_int_list = [
+    format_as_float_list = [
         "Rentabilitāte",
         "Prāmja izmaksas",
         "Ienākumi",
-        "Degviela iztērēta",
+        "Amorti. izm.",
+        "Pārējie izdevumi",
         "Ienākumi",
         "Rēķina summa",
+        "Peļņa",
+    ]
+
+    format_as_int_list = [
+        "Degviela iztērēta",
+        "Ienākumi",
+        "Bruto alga",
     ]
 
     format_formula_as_sum = [
         "Ienākumi",
         "Degviela iztērēta",
+        "Bruto alga",
+        "Pārējie izdevumi",
+        "Amorti. izm.",
         "Prāmja izmaksas",
         "Nobraukti km",
+        "Peļņa"
     ]
 
     format_date_as_short_date = [
-         "Reisa sākuma datums",
-         "Reisa beigu datums",
+         "Reisa sākuma d.",
+         "Reisa beigu d.",
     ]
 
     thin = Side(border_style="thin", color="000000")
@@ -44,8 +56,8 @@ class ExcelCreator:
         header_list= data_list[0].keys()
         self._header_writer(work_sheet= ws, header_list= list(header_list))
         self._data_writer(work_sheet= ws, data_list= data_list)
-        self._column_adjuster(work_sheet= ws)
         self._table_column_summary_writer(work_sheet= ws)
+        self._column_adjuster(work_sheet= ws)
         ws.sheet_properties.pageSetUpPr.fitToPage = True
         ws.page_setup.fitToHeight = False
         ws.set_printer_settings(10, "landscape")
@@ -54,8 +66,11 @@ class ExcelCreator:
     def _column_adjuster(self, work_sheet):
         for column_cells in work_sheet.columns:
             length = max(len(_as_text(cell.value)) for cell in column_cells)
-            if length < 10: length= 8
-            work_sheet.column_dimensions[column_cells[0].column_letter].width= length
+            print(column_cells[1].column_letter , length)
+            # if length < 6: length= 7
+            # work_sheet.column_dimensions[column_cells[0].column_letter].width= length
+            # work_sheet.column_dimensions[column_cells[1].column_letter].bestFit = True
+            work_sheet.column_dimensions[column_cells[1].column_letter].width = length / 1.2
             
     def _save(self):
         self.wb.save(filename=self.file_name)
@@ -72,7 +87,7 @@ class ExcelCreator:
             for k, v in data.items():
                 col += 1
                 cell = work_sheet.cell(column=col, row=row)
-                if k in self.format_as_int_list:
+                if k in self.format_as_float_list:
                     if k == "Rentabilitāte":
                         color = self._profitability_color_handler(v)
                         cell.fill = PatternFill(fgColor=color, fill_type= "solid")
@@ -81,6 +96,9 @@ class ExcelCreator:
                         cell.number_format = "0.00"
                 if k in self.format_date_as_short_date:
                     cell.number_format = "DD.MM.YYYY"
+
+                if k in self.format_as_int_list:
+                    cell.number_format = "0"
                 
                 cell.border = self.border
                 cell.value = v
