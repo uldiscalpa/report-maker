@@ -66,7 +66,9 @@ class ExcelCreator:
     def _column_adjuster(self, work_sheet):
         for column_cells in work_sheet.columns:
             length = max(len(_as_text(cell.value)) for cell in column_cells)
-            print(column_cells[1].column_letter , length)
+            #******************************************************
+            # colonu platumu konfigurēšana
+            #******************************************************
             # if length < 6: length= 7
             # work_sheet.column_dimensions[column_cells[0].column_letter].width= length
             # work_sheet.column_dimensions[column_cells[1].column_letter].bestFit = True

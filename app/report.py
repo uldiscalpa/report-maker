@@ -59,7 +59,7 @@ class Report:
             _dict = df.loc[df['Reisa ID']== route_id].to_dict(orient='records')
             route_dict = self._dict_converter(_dict[0], dict_mapper)
             self.route_list.append(Route(**route_dict))
-        print("Imported!")
+        print("Routes from driver excel tabel are imported!")
             
     def get_driver_month_report_routes(self, driver=None, year='2021', month='08'):
         """Return Route object list filtered by params"""

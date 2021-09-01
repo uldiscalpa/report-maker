@@ -5,7 +5,7 @@ from excel_export import ExcelCreator
 import pickle
 
 
-def write_test_data():
+def write_test_data() -> Report:
         # #  Datu ielasīšana pick filā
     ilonas_file_name = "ilonas_reisi.xlsx"
     report = Report()
@@ -16,32 +16,37 @@ def write_test_data():
 
     report.api_driver.close_web_browser()
 
-    with open("report_ojb.pkl", "wb")as f:
+    with open("temp/report_obj.pkl", "wb")as f:
         pickle.dump(report.route_list, f)
 
-def read_test_data():
+    return report
 
-    with open("report_ojb.pkl", "rb") as f:
+def read_test_data() -> Report:
+
+    with open("temp/report_obj.pkl", "rb") as f:
         route_list = pickle.load(f)
     
     report = Report()
     report.route_list = route_list
 
+    return report
+
+def export_test_data(report):
     year = "2021"
     month = "08"
     for driver in report.get_all_drivers():
         driver_month_routes = report.get_driver_month_report_routes(driver=driver, year= year, month= month)
 
-        export_obj = ExcelCreator(file_name=year + " " + month + " " + driver + ".xlsx")
+        export_obj = ExcelCreator(file_name="atskaites/" + year + " " + month + " " + driver + ".xlsx")
         for route in driver_month_routes:
             data_list = route.route_cars_export_format()
             work_sheet_name = route.route_id
             export_obj.write_report(work_sheet_name=work_sheet_name, data_list= data_list)
-            
-        # print(report.get_summary(route_obj_list=driver_month_routes))
+
         export_obj.write_report(work_sheet_name="Kopsavlikums", data_list= report.get_summary(route_obj_list=driver_month_routes))
 
-    report.route_list[0].get_route_load_plot()
+    # report.route_list[0].get_route_load_plot()
+
 
 def main():
     # with open("route_ojb.pkl", "wb")as f:
@@ -63,5 +68,6 @@ def main():
 
 
 if __name__ == "__main__":
-    # write_test_data()
-    read_test_data()
+    # report = write_test_data()
+    report = read_test_data()
+    export_test_data(report=report)
