@@ -69,5 +69,7 @@ def main():
 
 if __name__ == "__main__":
     # report = write_test_data()
-    report = read_test_data()
-    export_test_data(report=report)
+    # report = read_test_data()
+    # export_test_data(report=report)
+    strings = "hk  zeļī"
+    print(" ".join(strings.split()))
